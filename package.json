@@ -1,0 +1,11 @@
+{
+  "name": "fast-points",
+  "version": "0.0.1",
+  "description": "custom layer to render moving points on a Mapbox map",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "David Wicks",
+  "license": "BSD-3-Clause"
+}
