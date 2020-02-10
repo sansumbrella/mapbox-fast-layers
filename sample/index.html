@@ -44,7 +44,7 @@
             origin: {
                 lng: 13.403,
                 lat: 52.562,
-                phase: 0.5
+                phase: 0.75
             }
         },
         {
@@ -53,7 +53,7 @@
             origin: {
                 lng: 30.498,
                 lat: 50.541,
-                phase: 0.75
+                phase: 2
             }
         }];
 
@@ -64,9 +64,7 @@
             })
             .reduce((collection, current) => collection.concat(current), []);
 
-        const layer = new PointLayer(positions);
-        layer.type = "custom";
-        layer.id = "pointy-bits";
+        const layer = new PointLayer("pointy-bits", positions);
 
         map.on("load", function () {
             map.addLayer(layer);
@@ -76,7 +74,7 @@
             const t = now / 500;
             places.forEach(function (place) {
                 const x = Math.cos(t + place.origin.phase) * 2.0;
-                const y = Math.sin(t + place.origin.phase);
+                const y = Math.sin(2.0 * t + place.origin.phase);
                 place.lng = place.origin.lng + x;
                 place.lat = place.origin.lat + y;
             });

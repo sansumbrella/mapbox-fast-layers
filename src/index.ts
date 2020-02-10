@@ -13,12 +13,16 @@ export class PointLayer {
   shaderSource: [string, string];
   positionAttribute: number;
   dirty: boolean = false;
+  type = "custom";
+  id: string;
 
   constructor(
+    id: string,
     coordinates: number[] | Float32Array,
     vs: string = PointLayer.defaultVertexShader(),
     fs: string = PointLayer.defaultFragmentShader()
   ) {
+    this.id = id;
     this.setCoordinates(coordinates);
     this.setShaderSource(vs, fs);
   }
