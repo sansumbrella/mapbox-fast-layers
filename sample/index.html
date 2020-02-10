@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Moving points on a map</title>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v1.7.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v1.7.0/mapbox-gl.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+    <script type="module">
+        import { PointLayer } from "../build/index.js";
+        mapboxgl.accessToken = "pk.eyJ1IjoiZGF2aWQtd2lja3MiLCJhIjoiY2p4NmcydTRvMDhlNTN5bzNjbWViZHZ0eCJ9.NoZ_wNuMVCZj0xQ3ZakqvQ";
+        var map = (window.map = new mapboxgl.Map({
+            container: "map",
+            zoom: 3,
+            center: [7.5, 58],
+            style: "mapbox://styles/mapbox/light-v10",
+            antialias: true // create the gl context with MSAA antialiasing, so custom layers are antialiased
+        }));
+
+        const places = [{
+            lng: 25.004,
+            lat: 60.239,
+            origin: {
+                lng: 25.004,
+                lat: 60.239,
+                phase: 0
+            }
+        },
+        {
+            lng: 13.403,
+            lat: 52.562,
+            origin: {
+                lng: 13.403,
+                lat: 52.562,
+                phase: 0.5
+            }
+        },
+        {
+            lng: 30.498,
+            lat: 50.541,
+            origin: {
+                lng: 30.498,
+                lat: 50.541,
+                phase: 0.75
+            }
+        }];
+
+        const positions = places
+            .map(place => {
+                const coord = mapboxgl.MercatorCoordinate.fromLngLat(place);
+                return [coord.x, coord.y, coord.z];
+            })
+            .reduce((collection, current) => collection.concat(current), []);
+
+        const layer = new PointLayer(positions);
+        layer.type = "custom";
+        layer.id = "pointy-bits";
+
+        map.on("load", function () {
+            map.addLayer(layer);
+        });
+
+        function updatePoints(now) {
+            const t = now / 500;
+            places.forEach(function (place) {
+                const x = Math.cos(t + place.origin.phase) * 2.0;
+                const y = Math.sin(t + place.origin.phase);
+                place.lng = place.origin.lng + x;
+                place.lat = place.origin.lat + y;
+            });
+            map.triggerRepaint();
+
+            const positions = places
+                .map(place => {
+                    const coord = mapboxgl.MercatorCoordinate.fromLngLat(place);
+                    return [coord.x, coord.y, coord.z];
+                })
+                .reduce((collection, current) => collection.concat(current), []);
+            layer.setCoordinates(positions);
+
+            requestAnimationFrame(updatePoints);
+        }
+        requestAnimationFrame(updatePoints);
+    </script>
+</head>
+
+<body>
+    <h1>moving points sample</h1>
+    <div id="map"></div>
+</body>
+
+</html>

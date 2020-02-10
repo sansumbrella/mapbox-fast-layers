@@ -11,6 +11,7 @@ export class PointLayer {
   coordinates: Float32Array;
   program: WebGLProgram;
   shaderSource: [string, string];
+  positionAttribute: number;
   dirty: boolean = false;
 
   constructor(
@@ -24,22 +25,16 @@ export class PointLayer {
 
   static defaultVertexShader() {
     return `uniform mat4 u_matrix;
-    attribute vec3 a_position;
-    attribute vec3 a_color;
-    varying vec3 v_color;
-    void main() {
-        gl_Position = u_matrix * vector(a_position, 1.0);
-        v_color = a_color;
-
-    }
-      `;
+attribute vec3 a_position;
+void main() {
+    gl_Position = u_matrix * vec4(a_position, 1.0);
+    gl_PointSize = 5.0;
+}`;
   }
   static defaultFragmentShader() {
-    return `
-    varying vec3 v_color;
-    void main() {
-        gl_FragColor = v_color;
-    }`;
+    return `void main() {
+  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+}`;
   }
 
   onAdd(map: mapboxgl.Map, gl: WebGLRenderingContext) {
@@ -59,6 +54,8 @@ export class PointLayer {
     gl.attachShader(this.program, vs);
     gl.attachShader(this.program, fs);
     gl.linkProgram(this.program);
+
+    this.positionAttribute = gl.getAttribLocation(this.program, "a_position");
   }
 
   onRemove(map: mapboxgl.Map, gl: WebGLRenderingContext) {
@@ -76,7 +73,12 @@ export class PointLayer {
 
   render(gl: WebGLRenderingContext, matrix: number[]) {
     gl.useProgram(this.program);
+    gl.uniformMatrix4fv(gl.getUniformLocation(this.program, "u_matrix"), false, matrix);
+
     gl.bindBuffer(gl.ARRAY_BUFFER, this.geometryBuffer);
+    gl.enableVertexAttribArray(this.positionAttribute);
+    gl.vertexAttribPointer(this.positionAttribute, 3, gl.FLOAT, false, 0, 0);
+
     gl.drawArrays(gl.POINTS, 0, this.coordinates.length / 3);
   }
 

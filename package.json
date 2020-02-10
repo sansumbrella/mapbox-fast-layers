@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-ts": "tsc",
-    "build": "npm run build-ts"
+    "build": "npm run build-ts",
+    "watch": "tsc --watch"
   },
   "author": "David Wicks",
   "license": "BSD-3-Clause",
