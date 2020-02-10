@@ -4,8 +4,14 @@
   "description": "custom layer to render moving points on a Mapbox map",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
   },
   "author": "David Wicks",
-  "license": "BSD-3-Clause"
+  "license": "BSD-3-Clause",
+  "devDependencies": {
+    "@types/mapbox-gl": "^1.7.0",
+    "mapbox-gl": "^1.7.0",
+    "typescript": "^3.7.5"
+  }
 }
