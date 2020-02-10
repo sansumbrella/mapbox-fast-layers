@@ -26,12 +26,14 @@
             zoom: 3,
             center: [7.5, 58],
             style: "mapbox://styles/mapbox/light-v10",
+            hash: true,
             antialias: true // create the gl context with MSAA antialiasing, so custom layers are antialiased
         }));
 
         const places = [{
             lng: 25.004,
             lat: 60.239,
+            previous: [],
             origin: {
                 lng: 25.004,
                 lat: 60.239,
@@ -41,6 +43,7 @@
         {
             lng: 13.403,
             lat: 52.562,
+            previous: [],
             origin: {
                 lng: 13.403,
                 lat: 52.562,
@@ -50,6 +53,7 @@
         {
             lng: 30.498,
             lat: 50.541,
+            previous: [],
             origin: {
                 lng: 30.498,
                 lat: 50.541,
@@ -57,14 +61,7 @@
             }
         }];
 
-        const positions = places
-            .map(place => {
-                const coord = mapboxgl.MercatorCoordinate.fromLngLat(place);
-                return [coord.x, coord.y, coord.z];
-            })
-            .reduce((collection, current) => collection.concat(current), []);
-
-        const layer = new PointLayer("pointy-bits", positions);
+        const layer = new PointLayer("pointy-bits", placesToPositions(places));
 
         map.on("load", function () {
             map.addLayer(layer);
@@ -75,22 +72,39 @@
             places.forEach(function (place) {
                 const x = Math.cos(t + place.origin.phase) * 2.0;
                 const y = Math.sin(2.0 * t + place.origin.phase);
+
+                const { lng, lat } = place;
+                place.previous.unshift({ lng, lat });
+                if (place.previous.length > 10) {
+                    place.previous.pop();
+                }
+
                 place.lng = place.origin.lng + x;
                 place.lat = place.origin.lat + y;
             });
             map.triggerRepaint();
 
-            const positions = places
-                .map(place => {
-                    const coord = mapboxgl.MercatorCoordinate.fromLngLat(place);
-                    return [coord.x, coord.y, coord.z];
-                })
-                .reduce((collection, current) => collection.concat(current), []);
-            layer.setCoordinates(positions);
+            layer.setCoordinates(placesToPositions(places));
 
             requestAnimationFrame(updatePoints);
         }
         requestAnimationFrame(updatePoints);
+
+        function placesToPositions(places) {
+            return places
+                .map(place => {
+                    const coord = mapboxgl.MercatorCoordinate.fromLngLat(place);
+                    const vec = [coord.x, coord.y, coord.z];
+                    if (place.previous) {
+                        for (let i = 0; i < place.previous.length; i += 1) {
+                            const coord = mapboxgl.MercatorCoordinate.fromLngLat(place.previous[i]);
+                            vec.push(coord.x, coord.y, coord.z);
+                        }
+                    }
+                    return vec;
+                })
+                .reduce((collection, current) => collection.concat(current), []);
+        }
     </script>
 </head>
 
