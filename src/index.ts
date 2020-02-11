@@ -12,6 +12,8 @@ export class PointLayer {
   program: WebGLProgram;
   shaderSource: [string, string];
   positionAttribute: number;
+  bufferSize: number = 0;
+  targetBufferSize: number = 0;
   dirty: boolean = false;
   type = "custom";
   id: string;
@@ -32,7 +34,7 @@ export class PointLayer {
 attribute vec3 a_position;
 void main() {
     gl_Position = u_matrix * vec4(a_position, 1.0);
-    gl_PointSize = 5.0;
+    gl_PointSize = 2.0;
 }`;
   }
   static defaultFragmentShader() {
@@ -42,10 +44,7 @@ void main() {
   }
 
   onAdd(map: mapboxgl.Map, gl: WebGLRenderingContext) {
-    this.geometryBuffer = gl.createBuffer();
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.geometryBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this.coordinates, gl.DYNAMIC_DRAW);
+    this.createBuffer(gl);
 
     const vs = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vs, this.shaderSource[0]);
@@ -67,6 +66,9 @@ void main() {
   }
 
   prerender(gl: WebGLRenderingContext, matrix: number[]) {
+    if (this.bufferSize < this.targetBufferSize) {
+      this.createBuffer(gl);
+    }
     if (this.dirty) {
       gl.bindBuffer(gl.ARRAY_BUFFER, this.geometryBuffer);
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.coordinates);
@@ -90,12 +92,28 @@ void main() {
     if (coordinates.length % 3 !== 0) {
       throw new Error("Each point must contain 3 coordinates (x, y, z).");
     }
+    const byteLength = coordinates.length * 4;
+    if (byteLength > this.bufferSize) {
+      this.targetBufferSize = byteLength * 2; // allow room to grow
+    }
     this.dirty = true;
     if (coordinates instanceof Float32Array) {
       this.coordinates = coordinates;
     } else {
       this.coordinates = new Float32Array(coordinates);
     }
+  }
+
+  createBuffer(gl: WebGLRenderingContext) {
+    if (this.geometryBuffer) {
+      gl.deleteBuffer(this.geometryBuffer);
+    }
+
+    console.debug("creating buffer of size", this.targetBufferSize);
+    this.geometryBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.geometryBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this.targetBufferSize, gl.DYNAMIC_DRAW);
+    this.bufferSize = this.targetBufferSize;
   }
 
   setShaderSource(vs: string, fs: string) {

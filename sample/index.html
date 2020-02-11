@@ -70,12 +70,12 @@
         function updatePoints(now) {
             const t = now / 500;
             places.forEach(function (place) {
-                const x = Math.cos(t + place.origin.phase) * 2.0;
-                const y = Math.sin(2.0 * t + place.origin.phase);
+                const x = Math.cos(3.3 * t + place.origin.phase) * 2.0;
+                const y = Math.sin(2.0 * t + place.origin.phase) * 2.0;
 
                 const { lng, lat } = place;
                 place.previous.unshift({ lng, lat });
-                if (place.previous.length > 10) {
+                if (place.previous.length > 10000) {
                     place.previous.pop();
                 }
 
