@@ -9,7 +9,7 @@
     "build": "npm run build-ts",
     "watch": "tsc --watch"
   },
-  "author": "David Wicks",
+  "author": "David Wicks <david@sansumbrella.com> (https://sansumbrella.com/)",
   "license": "BSD-3-Clause",
   "devDependencies": {
     "@types/mapbox-gl": "^1.7.0",
