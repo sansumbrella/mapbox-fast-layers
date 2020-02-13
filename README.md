@@ -29,5 +29,5 @@ layer.setCoordinates(pointCoordinates);
 
 ## What doesn't it do?
 
-- Fast Layers don't manage your geometry or animation for you.
-- Fast Layers don't support rendering 3D models.
+- manage your geometry or animation for you.
+- render 3D models.
