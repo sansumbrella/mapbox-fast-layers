@@ -37,7 +37,27 @@
             origin: {
                 lng: 25.004,
                 lat: 60.239,
-                phase: 0
+                phase: Math.random()
+            }
+        },
+        {
+            lng: 0.004,
+            lat: 0.239,
+            previous: [],
+            origin: {
+                lng: 0.004,
+                lat: 0.239,
+                phase: Math.random()
+            }
+        },
+        {
+            lng: 15.004,
+            lat: 20.239,
+            previous: [],
+            origin: {
+                lng: 15.004,
+                lat: 20.239,
+                phase: Math.random()
             }
         },
         {
@@ -59,6 +79,36 @@
                 lat: 50.541,
                 phase: 2
             }
+        },
+        {
+            lng: 10.498,
+            lat: 10.541,
+            previous: [],
+            origin: {
+                lng: 10.498,
+                lat: 10.541,
+                phase: 3
+            }
+        },
+        {
+            lng: 30.498,
+            lat: 0.541,
+            previous: [],
+            origin: {
+                lng: 30.498,
+                lat: 0.541,
+                phase: 2 + Math.random()
+            }
+        },
+        {
+            lng: 20.498,
+            lat: -20.541,
+            previous: [],
+            origin: {
+                lng: 20.498,
+                lat: -20.541,
+                phase: 2 + Math.random()
+            }
         }];
 
         const layer = new PointLayer("pointy-bits", placesToPositions(places));
@@ -75,7 +125,7 @@
 
                 const { lng, lat } = place;
                 place.previous.unshift({ lng, lat });
-                if (place.previous.length > 10000) {
+                if (place.previous.length > 100) {
                     place.previous.pop();
                 }
 
